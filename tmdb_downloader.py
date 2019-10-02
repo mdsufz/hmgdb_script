@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ###################################################################
-#Script Name	: tmdb_downloader                                                                                         
+#Script Name	: tmdb_downloader.py                                                                                         
 #Description	: This script takes as an input a .csv table retrived from the https://webapp.ufz.de/tmdb/ and downloads metagenomic libraries from SRA and MGRAST                                                                                                                                          
 #Author       	: Rodolfo Brizola Toscan  - https://www.ufz.de/index.php?en=43568                                            
 #Email         	: rodolfo.toscan@ufz.de                                           
@@ -129,7 +129,7 @@ def download_mgrast_wget(mgrast_list,mgfa,output_path):
 		
 def help_message():
 	print "\n\tTMDB Downloader v.1"
-	print "\tUsage: $ ./tmdb_downloader [OPTIONS] tmdb_selected_map.csv"
+	print "\tUsage: $ python tmdb_downloader.py [OPTIONS] tmdb_selected_dataset.csv"
 	print "\n\tOPTIONS:"
 	print "\n\t-h        	 this help message"
 	print "\n\t-aspera_exec 	 < /path/to/ascp >			Provide the path to the aspera key file if you would like to download it with aspera."
