@@ -1,13 +1,15 @@
 #!/usr/bin/python
 ###################################################################
-#Script Name	: tmdb_downloader                                                                                         
-#Description	: This script takes as an input a .csv table retrived from the https://webapp.ufz.de/tmdb/ and downloads metagenomic libraries from SRA and MGRAST                                                                                                                                          
+#Script Name	: tmdb_downloader.py                                                                                         
+#Description	: This script takes as input a .csv table retrieved from the https://webapp.ufz.de/tmdb/ and downloads metagenomic libraries from SRA and MGRAST                                                                                                                                          
 #Author       	: Rodolfo Brizola Toscan  - https://www.ufz.de/index.php?en=43568                                            
 #Email         	: rodolfo.toscan@ufz.de                                           
 ###################################################################
+import signal
 import os
 import sys
 import commands
+import time
  
 def get_input_file(tmdb_csv_file):
 	l="a"
@@ -44,22 +46,32 @@ def download_ena(sra_list,output_path,dl,aspera_exec,aspera_ssh):
 	# if download is with wget, do
 	if dl == "wget":
 		for sra in sra_list:
+			time.sleep(1)								 #  SLEEP
+			signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
 			if os.path.isdir(output_path+"/"+sra) == False:
 				os.system("mkdir -p "+output_path+"/"+sra)
 			sra=sra.replace("\"","").strip()
 			if len(sra) ==12:
+				time.sleep(1)								 #  SLEEP
+				signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
 				cmd="wget --retry-connrefused -w "+output_path+"/"+sra+"/"+"   --show-progress 'ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"+sra[:6]+sra[9:12]+"/"+sra+"/*'"
 				#~ cmd="wget --retry-connrefused  -a  "+log_file+"   --show-progress 'ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"+sra[:6]+sra[9:12]+"/"+sra+"/*'"
 				os.system(cmd)
 			elif len(sra) ==11:
+				time.sleep(1)								 #  SLEEP
+				signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
 				cmd="wget --retry-connrefused -P "+output_path+"/"+sra+"/"+"    --show-progress 'ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"+sra[:6]+"/0"+sra[9:11]+"/"+sra+"/*'"
 				#~ cmd="wget --retry-connrefused -a  "+log_file+" --show-progress 'ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"+sra[:6]+"/0"+sra[9:11]+"/"+sra+"/*'"
 				os.system(cmd)
 			elif len(sra) ==10:
+				time.sleep(1)								 #  SLEEP
+				signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
 				cmd="wget --retry-connrefused -P "+output_path+"/"+sra+"/"+"  --show-progress 'ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"+sra[:6]+"/00"+sra[9:10]+"/"+sra+"/*'"
 				#~ cmd="wget --retry-connrefused  -a  "+log_file+" --show-progress 'ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"+sra[:6]+"/00"+sra[9:10]+"/"+sra+"/*'"
 				os.system(cmd)
 			elif len(sra) ==9:
+				time.sleep(1)								 #  SLEEP
+				signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
 				cmd="wget --retry-connrefused -P "+output_path+"/"+sra+"/"+"   --show-progress 'ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"+sra[:6]+"/"+sra[9:10]+"/"+sra+"/*'"
 				#~ cmd="wget --retry-connrefused  -a  "+log_file+"  --show-progress 'ftp://ftp.sra.ebi.ac.uk/vol1/fastq/"+sra[:6]+"/"+sra[9:10]+"/"+sra+"/*'"
 				os.system(cmd)
@@ -68,18 +80,26 @@ def download_ena(sra_list,output_path,dl,aspera_exec,aspera_ssh):
 		for sra in sra_list:
 			sra=sra.replace("\"","").strip()
 			if len(sra) ==12:
+				time.sleep(1)								 #  SLEEP
+				signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
 				cmd=aspera_exec+"  -QT -l 1000m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/"+sra[:6]+sra[9:12]+"/"+sra+"/. "+output_path
 				os.system(cmd)
 				print cmd
 			elif len(sra) ==11:
+				time.sleep(1)								 #  SLEEP
+				signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
 				cmd=aspera_exec+"  -QT -l 1000m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/"+sra[:6]+"/0"+sra[9:11]+"/"+sra+"/. "+output_path
 				os.system(cmd)
 				print cmd
 			elif len(sra) ==10:
+				time.sleep(1)								 #  SLEEP
+				signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
 				cmd=aspera_exec+" -QT -l 1000m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/"+sra[:6]+"/00"+sra[9:10]+"/"+sra+"/. "+output_path
 				os.system(cmd)
 				print cmd
 			elif len(sra) ==9:
+				time.sleep(1)								 #  SLEEP
+				signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
 				cmd=aspera_exec+"  -QT -l 1000m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/"+sra[:6]+"/"+sra[9:10]+"/"+sra+"/. "+output_path
 				os.system(cmd)
 				print cmd
@@ -114,12 +134,12 @@ def download_mgrast_wget(mgrast_list,mgfa,output_path):
 
 			if mgfa == 'y' or mgfa == 'Y':
 				next_file=aux.split("=")[-1].replace("\"}","")
-				print "NEXT_FILE",next_file
-				#~ cmd="curl  http://api.metagenomics.anl.gov/1/download/"+mg+"?file="+next_file+" -o "+output_path+"/"+mg+".fa.gz"
+				time.sleep(1)								 #  SLEEP
+				signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
 				cmd="curl  http://api.metagenomics.anl.gov/1/download/"+mg+"?file=299.1 -o "+output_path+"/"+mg+"/"+mg+".fa"
 				os.system(cmd)
 				os.system("gzip "+output_path+"/"+mg+"/"+mg+".fa")
-				print "Done!"
+				#~ print "Done!"
 			else:
 				print "     -> Raw data for "+mg+" not available. If you are interested in processed data, add the -mgfa argument as 'y'"
 		else:
@@ -129,7 +149,7 @@ def download_mgrast_wget(mgrast_list,mgfa,output_path):
 		
 def help_message():
 	print "\n\tTMDB Downloader v.1"
-	print "\tUsage: $ ./tmdb_downloader [OPTIONS] tmdb_selected_map.csv"
+	print "\tUsage: $ python tmdb_downloader.py [OPTIONS] tmdb_selected_dataset.csv"
 	print "\n\tOPTIONS:"
 	print "\n\t-h        	 this help message"
 	print "\n\t-aspera_exec 	 < /path/to/ascp >			Provide the path to the aspera key file if you would like to download it with aspera."
@@ -141,6 +161,10 @@ def help_message():
 	print "\n\n"
 
 def main():
+	#os.system("trap \"echo Exited!; exit;\" SIGINT SIGTERM")
+	
+
+	signal.signal(signal.SIGINT, signal_handler)
 	#1 ########## getting arguments
 	arguments = sys.argv
 	
@@ -214,6 +238,22 @@ def main():
 				#~ # DOWNLOAD MGRAST
 			download_mgrast_wget(mgrast_list,mgfa,output_path)
 			
+#os.system("trap \"echo Exited!; exit;\" SIGINT SIGTERM")
+
+#def signal_handler(sig, frame):
+#        print('You pressed Ctrl+C!')
+#        sys.exit(0)
+
+#signal.signal(signal.SIGINT, signal_handler)
+#print('Press Ctrl+C')
+#signal.pause()
+#exit_gracefully()	
+def signal_handler(signal, frame):
+  sys.exit(0)
+
+#signal.signal(signal.SIGINT, signal_handler)
+
+
 
 main()
 
