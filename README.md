@@ -4,9 +4,9 @@ Repository of scripts for the HumanMetagenomeDB
 
 #### INSTALLATION
 
-- git clone https://github.com/JotaKas/hmdb_scripts
-- cd hmdb_scripts
+- git clone https://github.com/mdsufz/hmgdb_script
+- cd hmgdb_script
 
-#### HMDB DOWNLOADER USAGE
+#### HMgDB DOWNLOADER USAGE
 
-- python hmdb_downloader.py -o output hmdb_downloaded_metadata_dataset.csv
+- python hmgdb_downloader.py -o output hmgdb_downloaded_metadata_dataset.csv
