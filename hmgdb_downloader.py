@@ -1,7 +1,7 @@
 #!/usr/bin/python
 ###################################################################
-#Script Name	: hmdb_downloader.py                                                                                         
-#Description	: This script takes as input a .csv table retrieved from the https://webapp.ufz.de/hmdb/ and downloads metagenomic libraries from SRA and MGRAST                                                                                                                                          
+#Script Name	: hmgdb_downloader.py                                                                                         
+#Description	: This script takes as input a .csv table retrieved from the https://webapp.ufz.de/hmgdb/ and downloads metagenomic libraries from SRA and MGRAST                                                                                                                                          
 #Author       	: Rodolfo Brizola Toscan  - https://www.ufz.de/index.php?en=43568                                            
 #Email         	: rodolfo.toscan@ufz.de                                           
 ###################################################################
@@ -11,9 +11,9 @@ import sys
 import commands
 import time
  
-def get_input_file(hmdb_csv_file):
+def get_input_file(hmgdb_csv_file):
 	l="a"
-	f=open(hmdb_csv_file,"r")
+	f=open(hmgdb_csv_file,"r")
 	mgrast_list=[]
 	sra_list=[]
 	header=f.readline()
@@ -148,8 +148,8 @@ def download_mgrast_wget(mgrast_list,mgfa,output_path):
 			print "Done!"
 		
 def help_message():
-	print "\n\tHMDB Downloader v.1"
-	print "\tUsage: $ python hmdb_downloader.py [OPTIONS] hmdb_downloaded_metadata_dataset.csv"
+	print "\n\tHMgDB Downloader v.1"
+	print "\tUsage: $ python hmgdb_downloader.py [OPTIONS] hmgdb_downloaded_metadata_dataset.csv"
 	print "\n\tOPTIONS:"
 	print "\n\t-h        	 this help message"
 	print "\n\t-aspera_exec 	 < /path/to/ascp >			Provide the path to the aspera key file if you would like to download it with aspera."
@@ -221,7 +221,7 @@ def main():
 		sra_list, mgrast_list = get_input_file(csv_file)
 		
 		
-		print "\n--> HMDB Downloader v.1"
+		print "\n--> HMgDB Downloader v.1"
 		print " -> Starting download of",str(len(sra_list)),"libraries from ENA and",str(len(mgrast_list)),"libraries from MG-RAST"
 		#~ if output_path==".": print " -> Dumping files to "
 		print " -> Downloading with",dl
