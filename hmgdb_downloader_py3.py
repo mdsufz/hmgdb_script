@@ -159,14 +159,14 @@ def get_download_file(file_list):
 		matches.reverse()
 		return(matches[0])
 	else:
-		('\nNo input file found. Please put the file with name starting with hmgdb_selected_dataset... into the same directory as the hmgdb_downloader_exe and execute again.')
+		('\nNo input file found. Please put the file with name starting with hmgdb_selected_dataset... into the same directory as the hmgdb_downloader and execute again.')
 		input('\n\nPress Enter to exit...')	
 		sys.exit()
 
 
 def main():
 	# status
-	print("\n--> HMgDB Downloader - Windows exe - v.1")
+	print("\n--> HMgDB Downloader - v.1")
 	
 	# check interupt
 	signal.signal(signal.SIGINT, signal_handler)
@@ -187,13 +187,13 @@ def main():
 	else: output_path = os.path.join(os.getcwd(),'output') 						# if -o is not given, output in the current folder
 	
 	#4 ########## set if user wants fasta files in abscense of raw fastq files for MG-rast
-	mgfa_in = input('\nFetching processed files from MGRast when raw data is not available? Please type Yes[default]/No:  ')
+	mgfa_in = input('\nWould you like to fetch processed files from MG-RAST when raw data is not available? Please type Yes[default]/No:  ')
 	if mgfa_in.lower() == 'y' or mgfa_in.lower() == 'yes' or mgfa_in == '':
 		mgfa = 'y'
 		print('\n -> Trying processed MGRast data if raw data is not available')
 	else:
 		mgfa = 'n'
-		print('\n -> Fetching only raw data from MGRast')
+		print('\n -> Fetching only raw data from MG-RAST')
 	
 	#5 ########## check if input file is given or in known format in same dir
 	if "-i" in arguments:
@@ -206,7 +206,7 @@ def main():
 		files = os.listdir(os.getcwd()) # get files in current folder in known format
 		infile = get_download_file(files) # select newest
 		if len(infile)==0:
-			print('\nNo input file found! Please put the file with name starting with hmgdb_selected_dataset... into the same directory as the hmgdb_downloader_exe and execute again.')
+			print('\nNo input file found! Please put the file with name starting with hmgdb_selected_dataset... into the same directory as the hmgdb_downloader and execute again.')
 			input('\n\nPress Enter to exit...')	
 	print('\n -> Using input file: '+infile)	
 
