@@ -8,7 +8,7 @@ Repository of scripts for the HumanMetagenomeDB
 - cd hmgdb_script
 
 #### HMgDB DOWNLOADER USAGE
-# Downloads the sequencing data and outputs to the "output" directory
+Downloads the sequencing data and outputs to the "output" directory
 - python hmgdb_downloader.py -o output -i hmgdb_downloaded_metadata_dataset.csv
 
 #### OPTIONS:
