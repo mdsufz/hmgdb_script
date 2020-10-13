@@ -20,6 +20,15 @@
 # 1) by click on exe: place hmgdb_selected_dataset...csv to same folder as exe, output folder in same folder as exe
 # 2) via command line: parameter option for input and output are possible
 ###################################################################
+# modified by Jonas Kasmanas
+# jonas.kasmanas@usp.br
+# 
+### changes / improvements compared to Alex script: 
+#  - Support for sequence download using Aspera Download technology for Linux
+#  - Support for Aspera download for Windows
+#  - some optimization and parameter checks
+#
+###################################################################
 
 import signal
 import os
@@ -104,6 +113,64 @@ def download_ena(sra_list,output_path):
 	# Status		
 	print("ENA/SRA download done!")
 
+# download SRA/ENA
+def download_ena_aspera(sra_list,output_path, aspera_exec,aspera_ssh):
+
+	# if output path does not exist, creates it
+	if os.path.isdir(output_path) == False:
+		os.mkdir(output_path)
+	output_path_sra = os.path.join(output_path,'SRA')
+	if os.path.isdir(output_path_sra) == False:
+		os.mkdir(output_path_sra)
+
+	if sys.platform == "linux" or sys.platform == "linux2":
+	# process each SRA entry
+		for sra in sra_list:
+			time.sleep(1)								 #  SLEEP
+			signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
+			sra=sra.replace("\"","").strip()
+			# check if output folder exists
+			if os.path.isdir(os.path.join(os.getcwd(),output_path_sra, sra)) == False:
+				os.mkdir(os.path.join(os.getcwd(),output_path_sra, sra))
+			# parse different ENA FTP structure for file download	
+			if len(sra) ==12:
+				cmd=aspera_exec+"  -QT -l 1000m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/"+sra[:6]+sra[9:12]+"/"+sra+"/. "+output_path_sra
+			elif len(sra) ==11:
+				cmd=aspera_exec+"  -QT -l 1000m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/"+sra[:6]+"/0"+sra[9:11]+"/"+sra+"/. "+output_path_sra
+			elif len(sra) ==10:
+				cmd=aspera_exec+" -QT -l 1000m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/"+sra[:6]+"/00"+sra[9:10]+"/"+sra+"/. "+output_path_sra
+			elif len(sra) ==9:
+				cmd=aspera_exec+"  -QT -l 1000m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:/vol1/fastq/"+sra[:6]+"/"+sra[9:10]+"/"+sra+"/. "+output_path_sra
+			# status print
+			print('     executing '+ cmd)
+			# download
+			os.system(cmd)			
+
+	elif sys.platform == "win32":
+	# process each SRA entry
+		for sra in sra_list:
+			time.sleep(1)								 #  SLEEP
+			signal.signal(signal.SIGINT, signal_handler) # CTRL C SIGNAL HANDLER
+			sra=sra.replace("\"","").strip()
+			# check if output folder exists
+			if os.path.isdir(os.path.join(os.getcwd(),output_path_sra, sra)) == False:
+				os.mkdir(os.path.join(os.getcwd(),output_path_sra, sra))
+			# parse different ENA FTP structure for file download	
+			if len(sra) ==12:
+				cmd=aspera_exec+"  -QT -l 300m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:vol1/fastq/"+sra[:6]+sra[9:12]+"/"+sra+"/. "+output_path_sra
+			elif len(sra) ==11:
+				cmd=aspera_exec+"  -QT -l 300m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:vol1/fastq/"+sra[:6]+"/0"+sra[9:11]+"/"+sra+"/. "+output_path_sra
+			elif len(sra) ==10:
+				cmd=aspera_exec+" -QT -l 300m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:vol1/fastq/"+sra[:6]+"/00"+sra[9:10]+"/"+sra+"/. "+output_path_sra
+			elif len(sra) ==9:
+				cmd=aspera_exec+"  -QT -l 300m -P33001 -i "+aspera_ssh+" era-fasp@fasp.sra.ebi.ac.uk:vol1/fastq/"+sra[:6]+"/"+sra[9:10]+"/"+sra+"/. "+output_path_sra
+			# status print
+			print('     executing '+ cmd)
+			# download
+			os.system(cmd)
+	# Status		
+	print("ENA/SRA download done!")
+
 # MGRast		
 def download_mgrast(mgrast_list, output_path, mgfa):
 	
@@ -146,7 +213,9 @@ def help_message():
     print("\n\tOPTIONS:")
     print("\n\t-h        	 this help message")
     print("\n\t-o     		 < /path/to/output > 			Path to output folder. If not given, the data will be placed where the script is executed.")
-    print("\n\t-i     		 < /path/to/input_csv_file > 			Path to input csv file. If not given, hmgdb_downloaded_metadata_dataset.csv is search in the location of the script.")
+    print("\n\t-i     		 < /path/to/input_csv_file > 		Path to input csv file. If not given, hmgdb_downloaded_metadata_dataset.csv is search in the location of the script.")
+    print("\n\t-aspera_exec 	 < /path/to/ascp >			Provide the path to the aspera key file if you would like to download it with aspera.")
+    print("\n\t-aspera_ssh 	 < /path/to/asperaweb_id_dsa.openssh >	Provide the path to the aspera key file if you would like to download it with aspera.")
     print("\n\n")
 
 def signal_handler(signal, frame):
@@ -210,7 +279,39 @@ def main():
 			input('\n\nPress Enter to exit...')	
 	print('\n -> Using input file: '+infile)	
 
-	#6 ########## DOWNLOAD!	
+	#6 ########## Check for Linux and Aspera
+	if sys.platform == "linux" or sys.platform == "linux2" or sys.platform == 'win32':			# if linux
+		if "-aspera_exec" in arguments:						# if -aspera_exec in arguemtns
+			flag_index=arguments.index("-aspera_exec")  
+			try:
+				aspera_exec=arguments[flag_index+1]	
+			except IndexError:
+				help_message()								# if executable is given but not the key, close program and exhibit help message
+				print("\n #### Please provide the path to the aspera ascp file in -aspera_exect. ###")
+				print("\n For Linux, usually located at $HOME/.aspera/connect/bin/ascp")
+				print("\n For Windows, usually located at %userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\bin\ascp")
+				sys.exit()
+				
+			#aspera_exec=arguments[flag_index+1]				# get aspera executable path
+			if "-aspera_ssh" in arguments:			   		# check for aspera ssh input
+				flag_index=arguments.index("-aspera_ssh")	# get aspera ssh input
+				aspera_ssh=arguments[flag_index+1]
+				dl="aspera"									# if executable and key are given, set download with aspera
+			else:
+				help_message()								# if executable is given but not the key, close program and exhibit help message
+				print("\n #### Please provide the path to the aspera SSH file in -aspera_ssh. ###")
+				print("\n For Linux, usually located at $HOME/.aspera/connect/etc/asperaweb_id_dsa.openssh")
+				print("\n For Windows, usually located at %userprofile%\AppData\Local\Programs\Aspera\Aspera Connect\etc\asperaweb_id_dsa.openssh")
+				sys.exit()
+		else:
+			dl='urllib'
+	else:
+		dl='urllib'
+		if "-aspera_exec" or "-aspera_ssh" in arguments:
+			print("\n #### Aspera download is currently only available on Linux and Windows. ####\n #### Proceeding without Aspera. ####\n")
+            
+
+	#7 ########## DOWNLOAD!	
 	sra_list, mgrast_list = get_input_file(infile)
 	#print(sra_list)
 	
@@ -224,7 +325,13 @@ def main():
 		# DOWNLOAD SRA
 		if len(sra_list) > 0:
 			print("\n -> Starting with SRA:")
-			download_ena(sra_list, output_path)
+			if dl=='urllib':
+				download_ena(sra_list, output_path)
+			elif dl=='aspera':
+				download_ena_aspera(sra_list, output_path, aspera_exec, aspera_ssh)
+			else:
+				print("\n\nError: download protocol error")
+				sys.exit()
 		# DOWNLOAD MGRAST
 		if len(mgrast_list) > 0:
 			print("\n -> Starting with MGRAST:")
@@ -235,5 +342,3 @@ def main():
 
 # main function
 main()
-
-
